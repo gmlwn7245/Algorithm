@@ -10,7 +10,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
-public class boj15591 {	
+public class boj15991 {	
 	private static ArrayList<int[]>[] arr;
 	private static int N,Q;
 	public static void main(String[] args) throws IOException {
