@@ -129,8 +129,6 @@ public class boj16236 {
 	
 }
 
-
-
 class Node {
 	public int x, y, size = 2;
 	
