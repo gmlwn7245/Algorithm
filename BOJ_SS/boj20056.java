@@ -54,42 +54,34 @@ public class boj20056 {
 		
 		// k번 이동하기
 		for(int i=0; i<k; i++) {
-			//System.out.println("======"+(i+1)+"======");
 			
 			// 파이어볼 이동
 			int[][] ballCnt = new int[n][n];
 			
 			for(int j=0; j<balls.size(); j++) {
 				Ball b = balls.get(j);
+				
+				// 이동할 칸 값 갱신
 				getNextPoint(b);
+				
+				// 이동하는 좌표에 1 더해줌
 				ballCnt[b.nextX][b.nextY] += 1;
 			}
 			
 			for(int j=0; j<n; j++) {
 				for(int k=0; k<n; k++) {
 					int cnt = ballCnt[j][k];
+					
+					// 아무것도 일어나지 않는 칸
 					if(cnt == 0)
 						continue;
 					
+					// 파이어볼 1개 이동하는 칸
 					if(cnt == 1) 
 						moveBall(j,k);
-					else
+					else	// 파이어볼이 2개 이상 이동하는 칸
 						combBalls(j,k);
-					//System.out.println("cnt+++"+cnt);
 				}
-			}
-			
-			ArrayList<Integer> delBalls = new ArrayList<>();
-			for(int j=balls.size()-1; j>=0; j--) {
-				Ball b = balls.get(j);
-				if(b.m==0)
-					delBalls.add(j);
-			}
-			
-			int delBallSize = delBalls.size();
-			for(int j=0; j<delBallSize; j++) {
-				int id = delBalls.get(0);	
-				balls.remove(id);
 			}
 		}
 		
@@ -101,18 +93,6 @@ public class boj20056 {
 		}
 		
 		System.out.println(resM);
-	}
-	
-	public static void printBall() {
-		for(int i=0; i<balls.size();i++) {
-			Ball b = balls.get(i);
-			System.out.println((i+1)+"번째 볼 ===");
-			System.out.println("현재좌표 ["+b.x+","+b.y+"]");
-			System.out.println("질량 m : "+b.m);
-			System.out.println("속력 s : "+b.s);
-			System.out.println("방향 d : "+b.d);
-			System.out.println("다음좌표 ["+b.nextX + ","+b.nextY+"]");
-		}
 	}
 	
 	public static void moveBall(int x, int y) {
@@ -128,19 +108,24 @@ public class boj20056 {
 	}
 	
 	public static void combBalls(int x, int y) {
+		
+		// 같은 x,y로 이동하는 파이어볼들의 balls 인덱스
 		ArrayList<Integer> sameBalls = new ArrayList<>();
+		
+		int SameCnt=0;
 		for(int i=0; i<balls.size(); i++) {
 			Ball b = balls.get(i);
 			
-			if(b.nextX==x && b.nextY == y)
+			if(b.nextX==x && b.nextY == y) {
 				sameBalls.add(i);
+				SameCnt++;
+			}				
 		}
 		
 		
 		int m=0, s=0, d=0;
 		
-		boolean isEven = (balls.get(sameBalls.get(0))).d%2 ==0 ? true : false;
-		
+		boolean isEven = (balls.get(sameBalls.get(0))).d % 2 ==0 ? true : false;
 		
 		// 지금까지 모두 같은 방향인지
 		boolean isSameDir = true;
@@ -150,6 +135,7 @@ public class boj20056 {
 			m += balls.get(idx).m;
 			s += balls.get(idx).s;
 			
+			// 같은 방향이 아닐 경우 밑에 과정 생략
 			if(!isSameDir)
 				continue;
 			
@@ -159,13 +145,17 @@ public class boj20056 {
 			else if(!isEven && balls.get(idx).d%2==0)
 				isSameDir = false;
 		}
+		
 		m /= 5;
 		s /= sameBalls.size();
 		
+		
+		// 모두 짝수이거나 모두 홀수인 경우
 		if(isSameDir)
 			d = 0;
 		else
 			d = 1;
+		
 		
 		int nSameBalls = sameBalls.size();
 		
@@ -187,18 +177,12 @@ public class boj20056 {
 	
 	public static void getNextPoint(Ball b) {
 		int corS = b.s % n;
-		int nextX = b.x + dx[b.d] * corS;
-		int nextY = b.y + dy[b.d] * corS;
+		int nextX = b.x + n + dx[b.d] * corS;
+		int nextY = b.y + n + dy[b.d] * corS;
 		
-		if(nextX >= n)
-			nextX -= n;
-		else if(nextX < 0)
-			nextX += n;
+		nextX %= n;
+		nextY %= n;
 		
-		if(nextY >=n)
-			nextY -= n;
-		else if(nextY < 0)
-			nextY += n;
 		
 		b.nextX = nextX;
 		b.nextY = nextY;
