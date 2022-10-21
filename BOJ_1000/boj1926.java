@@ -1,4 +1,4 @@
-package Easy;
+package BOJ_1000;
 
 import java.io.IOException;
 import java.util.*;
