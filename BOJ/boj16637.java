@@ -12,7 +12,7 @@ public class boj16637 {
 	static ArrayList<Integer> nums = new ArrayList<>();
 	static ArrayList<Character> ops = new ArrayList<>();
 	static int N;
-	static int max = Integer.MIN_VALUE+1;
+	static int max = Integer.MIN_VALUE;
 	
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -21,6 +21,7 @@ public class boj16637 {
 		N = Integer.parseInt(br.readLine());
 		
 		String exp = br.readLine();
+		
 		for(int i=0; i<N; i++) {
 			char ch = exp.charAt(i);
 			if(i%2==0) {

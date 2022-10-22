@@ -42,6 +42,10 @@ public class boj2531 {
 			hs.add(c);
 			
 			max = Math.max(max, hs.size());
+			
+			// 최대값 k+1이 되면 탐색 종료 (시간 초과 방지)
+			if(max == k+1)
+				return ;
 		}
 	}
 }
