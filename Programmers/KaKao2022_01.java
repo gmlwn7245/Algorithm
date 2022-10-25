@@ -30,7 +30,7 @@ public class KaKao2022_01 {
 		
 		else if(sum1 == sum2)
 			System.out.println("no 1==>0");
-					
+	
 		else {
 			int start1=0, start2=qLen, end = queue.size(), changeCnt = 0;
 			boolean isChange = false;
