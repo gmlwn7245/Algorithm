@@ -1,4 +1,4 @@
-package Programmers;
+package Programmers_K;
 
 // 징검다리 건너기
 public class KaKao2019_02 {

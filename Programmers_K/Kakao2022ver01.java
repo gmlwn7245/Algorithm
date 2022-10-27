@@ -1,4 +1,4 @@
-package Programmers;
+package Programmers_K;
 
 public class Kakao2022ver01 {
 	// K진수 구하기
