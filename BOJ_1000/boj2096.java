@@ -9,14 +9,13 @@ import java.util.StringTokenizer;
 
 public class boj2096 {
 	private static int n;
-	private static int[][] map, maxDP, minDP;
+	private static int[][] maxDP, minDP;
 
 	public static void main(String[] args) throws NumberFormatException, IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
 		n = Integer.parseInt(br.readLine());
-		map = new int[n][3];
 		maxDP = new int[n][3];
 		minDP = new int[n][3];
 
@@ -24,17 +23,17 @@ public class boj2096 {
 			StringTokenizer st = new StringTokenizer(br.readLine());
 
 			for (int j = 0; j < 3; j++) {
-				map[i][j] = Integer.parseInt(st.nextToken());
+				int num = Integer.parseInt(st.nextToken());
 
 				if (i == 0) {
-					maxDP[i][j] = minDP[i][j] = map[i][j];
+					maxDP[i][j] = minDP[i][j] = num;
 					continue;
 				}
 
 				switch (j) {
 				case 0: {
-					maxDP[i][j] = map[i][j] + Math.max(maxDP[i - 1][j], maxDP[i - 1][j + 1]);
-					minDP[i][j] = map[i][j] + Math.min(minDP[i - 1][j], minDP[i - 1][j + 1]);
+					maxDP[i][j] = num + Math.max(maxDP[i - 1][j], maxDP[i - 1][j + 1]);
+					minDP[i][j] = num + Math.min(minDP[i - 1][j], minDP[i - 1][j + 1]);
 					break;
 				}
 
@@ -45,25 +44,24 @@ public class boj2096 {
 					int min = Math.min(minDP[i - 1][j], minDP[i - 1][j - 1]);
 					min = Math.min(min, minDP[i - 1][j + 1]);
 
-					maxDP[i][j] = map[i][j] + max;
-					minDP[i][j] = map[i][j] + min;
+					maxDP[i][j] = num + max;
+					minDP[i][j] = num + min;
 
 					break;
 				}
 
 				case 2: {
-					maxDP[i][j] = map[i][j] + Math.max(maxDP[i - 1][j], maxDP[i - 1][j - 1]);
-					minDP[i][j] = map[i][j] + Math.min(minDP[i - 1][j], minDP[i - 1][j - 1]);
+					maxDP[i][j] = num + Math.max(maxDP[i - 1][j], maxDP[i - 1][j - 1]);
+					minDP[i][j] = num + Math.min(minDP[i - 1][j], minDP[i - 1][j - 1]);
 					break;
 				}
-				
 				
 				}
 			}
 		}
 		
-		int max = 0;
-		int min = 10;
+		int max = Integer.MIN_VALUE;
+		int min = Integer.MAX_VALUE;
 		for(int i=0; i<3; i++) {
 			max = Math.max(maxDP[n-1][i], max);
 			min = Math.min(minDP[n-1][i], min);
