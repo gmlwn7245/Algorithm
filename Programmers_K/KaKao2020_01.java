@@ -4,7 +4,6 @@ public class KaKao2020_01 {
 	public static void main(String[] args) {
 		Solution s = new Solution();
 		String[] gems = {"DIA", "RUBY", "RUBY", "DIA", "DIA", "EMERALD", "SAPPHIRE", "DIA"};
-		
 		int[] answer = s.solution(gems);
 		System.out.println(answer[0]+" "+ answer[1]);
 	}
@@ -14,39 +13,26 @@ public class KaKao2020_01 {
 	        HashSet<String> hs = new HashSet<String>(Arrays.asList(gems));
 	        HashMap<String, Integer> hm = new HashMap<>();
 	        int[] answer = new int[2];
-	                
+	        
 	        for(String str : hs){
 	            hm.put(str,0);
 	        }
 	        
 	        Queue<String> q = new LinkedList<>();
 	        HashSet<String> now = new HashSet<>();
-	        int startX = 0;
+	        int startX = 0, startPoint=0;
 	        int len = Integer.MAX_VALUE;
 	        
 	        for(String str : gems){
 	            // 보석 개수가 다 채워졌는지 확인
 	            if(now.size() < hs.size()){
 	                now.add(str);
-	            }
-	            
-	            // 첫 번째 원소 넣고 재개
-	            if(q.isEmpty()){
-	            	q.add(str);
-	                hm.put(str, hm.get(str)+1);
-	                continue;
-	            }
+	            }            
 	            
 	            // 원소 넣기
 	            q.add(str);
-                hm.put(str, hm.get(str)+1);
-	            
-	            // q 맨 앞이랑 같은 경우
-	            if(str.equals(q.peek())){
-	            	q.poll();
-	                startX++;
-	            }
-	            
+                hm.put(str, hm.get(str)+1);	         
+                
 	            while(true){
 	                String s = q.peek();
 	                
@@ -61,11 +47,13 @@ public class KaKao2020_01 {
 	                    q.poll();
 	                    startX++;
 	                }
-	            }
+	            }      
 	            
+	            // 개수 세기
 	            if(now.size() == hs.size() && len > q.size()){
-	                answer[0] = startX;
-	                answer[1] = startX+q.size()-1;
+	            	len = q.size();
+	                answer[0] = startX+1;
+	                answer[1] = startX+q.size();
 	            }
 	        }
 	        
