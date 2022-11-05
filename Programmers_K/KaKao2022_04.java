@@ -66,22 +66,13 @@ public class KaKao2022_04 {
 	                pq.add(intensity[s][g]);
 	            }
 	            
-	            int first = pq.poll();
-	            int second = pq.poll();
-	            
-	            System.out.println(s+"<==//"+first+":"+second);
-	            
-	            int inten = Math.max(first, second);
+	            int inten = pq.poll();
 	            if(inten < min || (inten==min&&topNum>s)){
 	                min = inten;
 	                topNum = s;
 	            }
 	        }
 	        
-	        for(int i=1; i<=n; i++) {
-	        	System.out.print(intensity[5][i]+" ");
-	     
-	        }
 	        System.out.println();
 	        
 	        return new int[] {topNum, min};
