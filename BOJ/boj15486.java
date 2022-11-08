@@ -42,32 +42,12 @@ public class boj15486 {
 		
 		int firstend = node[1].T;
 		
-		for(int i=1; i<firstend; i++) {
-			dfs(node[i].P,i+1);
+		for(int i=1; i<=firstend; i++) {
 		}
 		
 		bw.write(maxP+"");
 		bw.flush();
 		bw.close();
-	}
-	
-	public static void dfs(int sum, int idx) {
-		if(idx==N+1) {
-			maxP = Math.max(maxP, sum);
-			return ;
-		}
-		
-		for(int i=idx; i<=N; i++) {
-			if(!isPossible[i])
-				continue;
-			
-			if(!canDoSchedule(i))
-				continue;
-			
-			dfs(sum+node[i].P , i+1);
-		}
-		
-		dfs(sum, N+1);
 	}
 	
 	public static boolean canDoSchedule(int n) {
