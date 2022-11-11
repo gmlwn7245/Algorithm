@@ -11,7 +11,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
-public class boj9736 {
+public class boj9376 {
 	static class Node {
 		int x, y, doorCnt=-1;
 		public Node(int x, int y) {
@@ -50,7 +50,9 @@ public class boj9736 {
 	}
 	
 	public static void bfs(Node start, Node goal) {
-		
+		int[][] doorCnt = new int[H][M];
+		for(int[] i : doorCnt)
+			Arrays.fill(i, -1);
 		Queue<Node> q = new LinkedList<>();
 		q.add(start);
 		
@@ -66,7 +68,7 @@ public class boj9736 {
 					continue;
 				
 				// 수가 같거나 작을때
-				
+				//if(map[nx][ny] )
 					
 				
 			}
