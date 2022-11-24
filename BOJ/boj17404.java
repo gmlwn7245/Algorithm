@@ -1,4 +1,4 @@
-package BOJ_1000;
+package BOJ;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
