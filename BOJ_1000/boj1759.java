@@ -25,13 +25,11 @@ public class boj1759 {
 		L = Integer.parseInt(st.nextToken());
 		C = Integer.parseInt(st.nextToken());
 		
-		
 		vow.add('a');
 		vow.add('e');
 		vow.add('i');
 		vow.add('o');
 		vow.add('u');
-		
 		
 		st = new StringTokenizer(br.readLine());
 		for(int i=0; i<C; i++) {
@@ -41,14 +39,13 @@ public class boj1759 {
 		
 		Collections.sort(arr);
 		
-		for(int i=0; i<C-L; i++) {
-			System.out.println(i);
-			getString(i, 0, new ArrayList<>());
-		}
+		getString(0, 0, new ArrayList<>());
 		
 		while(!pq.isEmpty()) {
-			bw.write(pq.poll()+"\n");
+			String str = pq.poll();
+			bw.write(str+"\n");
 		}
+		
 		bw.flush();
 		bw.close();
 	}
@@ -59,16 +56,19 @@ public class boj1759 {
 			for(char ch : ans) {
 				sb.append(ch);
 			}
+			//System.out.println(sb.toString());
 			pq.add(sb.toString());
 			return ;
 		}
 		
-		for(int i = idx; i<arr.size(); i++) {
+		for(int i = idx; i<C; i++) {
 			char ch = arr.get(i);
 			
+			// 모음 총 0개 , 1자리 남음, 현재 모음이 아닌 경우
 			if(ans.size()==L-1 && vCnt == 0 && !vow.contains(ch))
 				continue;
 			
+			// 2개 빼고 전부 모음, 현재 모음인 경우
 			if(vCnt == L-2 && vow.contains(ch))
 				continue;
 			
@@ -78,8 +78,8 @@ public class boj1759 {
 				getString(i+1, vCnt+1, ans);
 			else
 				getString(i+1, vCnt, ans);
-			
-			ans.remove(ch);
+		
+			ans.remove(ans.size()-1);
 		}
 	}
 }
