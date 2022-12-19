@@ -5,61 +5,52 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 public class boj2602 {
+	private static int len, ans=0;
+	private static String[] fMap, lMap,str;
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 		
-		String[] con = br.readLine().split("");
-		String[] fMap = br.readLine().split("");
-		String[] lMap = br.readLine().split("");
+		str = br.readLine().split("");
+
+		fMap = br.readLine().split("");
+		lMap = br.readLine().split("");
 		
-		HashMap<String, Integer> hm = new HashMap<>();
-		for(int i=0; i<con.length; i++) {
-			// 해당 String의 Con에서의 idx
-			hm.put(con[i], i);
-		}
-		
-		int ans = 0;
-		
-		int[] dp1 = new int[fMap.length+1];
-		int[] dp2 = new int[lMap.length+1];
-		for(int i=0; i<fMap.length; i++) {
-			System.out.println(fMap[i]);
-			
-			if(hm.getOrDefault(fMap[i],0)==0)
-				dp1[i]=1;
-			else {
-				int idx = hm.get(fMap[i])-1;
-				int sum = 0;
-				for(int j=i-1; j>=0; j--) {
-					if(lMap[j].equals(con[idx])) {
-						sum += dp2[j];
-					}
-				}
-				dp1[i]=sum;
-			}
-			
-			if(hm.getOrDefault(lMap[i],0)==0)
-				dp2[i]=1;
-			else {
-				int idx = hm.get(lMap[i])-1;
-				int sum = 0;
-				for(int j=i-1; j>=0; j--) {
-					if(fMap[j].equals(con[idx])) {
-						sum += dp1[j];
-					}
-				}
-				dp2[i]=sum;
-			}
-			ans = Math.max(ans, Math.max(dp1[i], dp2[i]));
-			
-		}
+		len = fMap.length;
+		dfs(true, 0,0);
+		dfs(false, 0,0);
 		
 		bw.write(ans+"");
 		bw.flush();
 		bw.close();
 	}
+	
+	// 짝수
+	public static void dfs(boolean isFirst, int idx, int arrIdx) {
+		for(int i=idx; i<len; i++) {
+			if(isFirst) {
+				if(!fMap[i].equals(str[arrIdx]))
+					continue;
+				
+				if(arrIdx==str.length-1)
+					ans++;
+				else
+					dfs(false, i+1, arrIdx+1);
+			}else {
+				if(!lMap[i].equals(str[arrIdx]))
+					continue;
+				
+				if(arrIdx==str.length-1)
+					ans++;
+				else
+					dfs(true, i+1, arrIdx+1);
+			}
+		}
+	}
+	
+
 }
