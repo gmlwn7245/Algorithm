@@ -7,10 +7,24 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
+// 마법사 상어와 비바라기
 public class boj21610 {
+	static class Cloud {
+		public int x, y;
+		public Cloud(int x, int y) {
+			this.x = x;
+			this.y = y;
+		}
+		
+		@Override
+		public boolean equals(Object object) {
+			return this.x == ((Cloud)object).x && this.y == ((Cloud)object).y;
+		}
+	}
 	private static int N, M;
 	private static int[][] map;
-	private static ArrayList<int[]> arr = new ArrayList<>();
+	private static ArrayList<Cloud> clouds = new ArrayList<>();
+	private static ArrayList<Cloud> arr = new ArrayList<>();
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
@@ -20,6 +34,10 @@ public class boj21610 {
 		M = Integer.parseInt(str[1]);
 		
 		map = new int[N][N];
+		clouds.add(new Cloud(N-1,0));
+		clouds.add(new Cloud(N-1,1));
+		clouds.add(new Cloud(N-2,0));
+		clouds.add(new Cloud(N-2,1));
 		
 		for(int i=0; i<N; i++) {
 			str = br.readLine().split(" ");
@@ -30,19 +48,18 @@ public class boj21610 {
 		
 		for(int i=0; i<M; i++) {
 			str = br.readLine().split(" ");
-			moveCloud(Integer.parseInt(str[0]),Integer.parseInt(str[1]));
-			
-			for(int[] a : arr) {
-				if(i==2)
-					System.out.println(a[0]+" "+a[1]);
-
+			if(i>0) {
+				findCloud();
 			}
-				
 			
+			moveCloud(Integer.parseInt(str[0]),Integer.parseInt(str[1]));
+			addWater();
 			copyWater();
 		}
+		findCloud();
 		
 		int sum = 0;
+		
 		for(int i=0; i<N; i++)
 			for(int j=0; j<N; j++)
 				sum += map[i][j];
@@ -53,38 +70,67 @@ public class boj21610 {
 		
 	}
 	
+	public static void findCloud() {
+		clouds.clear();
+
+		
+		for(int i=0; i<N; i++) {
+			for(int j=0; j<N; j++) {
+				if(map[i][j]>=2) {
+					if(arr.contains(new Cloud(i,j))) {
+						continue;
+					}
+					
+					clouds.add(new Cloud(i,j));
+					map[i][j]-=2;
+				}
+			}
+		}		
+	}
+	
+	public static void addWater() {
+		for(Cloud c : arr) {
+			map[c.x][c.y]++;
+		}
+	}
+	
 	public static void copyWater() {
 		int[] dx = {-1,-1,1,1};
 		int[] dy = {1,-1,-1,1};
 		
-		for(int[] a : arr) {
-			int x = a[0];
-			int y = a[1];
+		for(Cloud a : arr) {
+			int x = a.x;
+			int y = a.y;
+			
+			int cnt = 0;
 			for(int i=0; i<4; i++) {
 				int nx = x + dx[i];
 				int ny = y + dy[i];
+				
 				if(!isInArea(nx,ny))
 					continue;
-				if(arr.contains(new int[] {nx, ny}))
+				
+				if(map[nx][ny]==0)
 					continue;
 				
-				if(map[nx][ny]<=2)
-					map[nx][ny]=0;
-				else
-					map[nx][ny]-=2;
+				cnt++;
 			}
+			
+			map[x][y]+= cnt;
 		}
 	}
 	
+	
+	
 	public static void moveCloud(int dir, int cnt) {
-		int[][] clouds = {{N-1,0},{N-1,1},{N-2,0},{N-2,1}};
 		arr.clear();
 		cnt %= N;
 		
 		// ←, ↖, ↑, ↗, →, ↘, ↓, ↙
-		for(int i=0; i<4; i++) {
-			int nx = clouds[i][0];
-			int ny = clouds[i][1];
+		
+		for(Cloud c : clouds) {
+			int nx = c.x;
+			int ny = c.y;
 			
 			switch(dir) {
 			case 1 : {
@@ -125,9 +171,9 @@ public class boj21610 {
 			}
 			}
 			
-			if(nx > N)
+			if(nx >= N)
 				nx %= N;
-			if(ny > N)
+			if(ny >= N)
 				ny %= N;
 			
 			if(nx < 0)
@@ -135,12 +181,29 @@ public class boj21610 {
 			if(ny < 0)
 				ny += N;
 			
-			arr.add(new int[] {nx, ny});
+			
+			//System.out.println(nx+" "+ny+" / ");
+			arr.add(new Cloud(nx,ny));
 		}
 		
 	}
 	
 	public static boolean isInArea(int x, int y) {
 		return x>=0 && x<N && y>=0 && y<N;
+	}
+	
+	public static void printMap() {
+		for(int i=0; i<N; i++) {
+			for(int j=0; j<N; j++) {
+				System.out.print(map[i][j]+" ");
+			}
+			System.out.println();
+		}		
+	}
+	
+	public static void printCloud() {
+		for(Cloud c : clouds) {
+			System.out.print(c.x+" "+c.y+"/");
+		}		
 	}
 }
