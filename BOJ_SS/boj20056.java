@@ -1,190 +1,152 @@
 package BOJ_SS;
 
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
 
-class Ball {
-	public int x, y, m, d, s;
-	public int nextX, nextY;
-	
-	public Ball(int x, int y, int m, int d, int s) {
-		this.x = x;
-		this.y = y;
-		this.m = m;
-		this.d = d;
-		this.s = s;
-	}
-	
-	public void setNext(int nextX, int nextY) {
-		this.nextX = nextX;
-		this.nextY = nextY;
-	}
-}
 
 public class boj20056 {
-	public static int n=0, m=0, k=0;
-	public static int[] dx = {-1,-1,0,1,1,1,0,-1};
-	public static int[] dy = {0,1,1,1,0,-1,-1,-1};
-	public static ArrayList<Ball> balls = new ArrayList<>();
-	public static int[][] ballCnt;
-	
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
-		
-		n = sc.nextInt();
-		m = sc.nextInt();
-		k = sc.nextInt();
-		
-		// (r,c) : 위치
-		// m : 질량
-		// d : 방향
-		// s : 속력
-		
-		for(int i=1; i<=m; i++) {
-			int r = sc.nextInt()-1;
-			int c = sc.nextInt()-1;
-			int m = sc.nextInt();
-			int s = sc.nextInt();
-			int d = sc.nextInt();
-			
-			Ball b = new Ball(r,c,m,d,s);
-			getNextPoint(b);
-			balls.add(b);
-		}
-			
-		
-		// k번 이동하기
-		for(int i=0; i<k; i++) {
-			
-			// 파이어볼 이동
-			int[][] ballCnt = new int[n][n];
-			
-			for(int j=0; j<balls.size(); j++) {
-				Ball b = balls.get(j);
-				
-				// 이동할 칸 값 갱신
-				getNextPoint(b);
-				
-				// 이동하는 좌표에 1 더해줌
-				ballCnt[b.nextX][b.nextY] += 1;
-			}
-			
-			for(int j=0; j<n; j++) {
-				for(int k=0; k<n; k++) {
-					int cnt = ballCnt[j][k];
-					
-					// 아무것도 일어나지 않는 칸
-					if(cnt == 0)
-						continue;
-					
-					// 파이어볼 1개 이동하는 칸
-					if(cnt == 1) 
-						moveBall(j,k);
-					else	// 파이어볼이 2개 이상 이동하는 칸
-						combBalls(j,k);
-				}
-			}
-		}
-		
-		int resM = 0;
-		
-		for(int i=0; i<balls.size(); i++) {
-			Ball b = balls.get(i);
-			resM += b.m;
-		}
-		
-		System.out.println(resM);
-	}
-	
-	public static void moveBall(int x, int y) {
-		for(int i=0; i<balls.size(); i++) {
-			Ball b = balls.get(i);
-			
-			if(b.nextX == x && b.nextY == y) {
-				b.x = x;
-				b.y = y;
-				return ;
-			}
+	static class FireBall {
+		int r,c,m,s,d;
+		public FireBall(int r, int c, int m, int s, int d) {
+			this.r = r;
+			this.c = c;
+			this.m = m;
+			this.s = s;
+			this.d = d;
 		}
 	}
 	
-	public static void combBalls(int x, int y) {
+	private static int N, M, K;
+	
+	private static int[] dx = {-1,-1,0,1,1,1,0,-1};
+	private static int[] dy = {0,1,1,1,0,-1,-1,-1};
+	private static Queue<FireBall> balls = new LinkedList<>();
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 		
-		// 같은 x,y로 이동하는 파이어볼들의 balls 인덱스
-		ArrayList<Integer> sameBalls = new ArrayList<>();
+		String[] str = br.readLine().split(" ");
 		
-		int SameCnt=0;
-		for(int i=0; i<balls.size(); i++) {
-			Ball b = balls.get(i);
+		N = Integer.parseInt(str[0]);
+		M = Integer.parseInt(str[1]);
+		K = Integer.parseInt(str[2]);
+		
+		
+		for(int i=0; i<M; i++) {
+			String ss = br.readLine();
+			if(ss.equals(" ")) {
+				i--;
+				continue;
+			}
+			StringTokenizer st = new StringTokenizer(ss);
+			int r = Integer.parseInt(st.nextToken());
+			int c = Integer.parseInt(st.nextToken());
+			int m = Integer.parseInt(st.nextToken());
+			int s = Integer.parseInt(st.nextToken());
+			int d = Integer.parseInt(st.nextToken());
 			
-			if(b.nextX==x && b.nextY == y) {
-				sameBalls.add(i);
-				SameCnt++;
-			}				
+			balls.add(new FireBall(r,c,m,s,d));
 		}
 		
-		
-		int m=0, s=0, d=0;
-		
-		boolean isEven = (balls.get(sameBalls.get(0))).d % 2 ==0 ? true : false;
-		
-		// 지금까지 모두 같은 방향인지
-		boolean isSameDir = true;
-		
-		for(int i=0; i<sameBalls.size(); i++) {
-			int idx = sameBalls.get(i);
-			m += balls.get(idx).m;
-			s += balls.get(idx).s;
+		for(int i=0; i<K; i++) {
+			moveBall();
+		}
 			
-			// 같은 방향이 아닐 경우 밑에 과정 생략
-			if(!isSameDir)
+		
+		int ans = 0;
+		while(!balls.isEmpty()) {
+			FireBall fb = balls.poll();
+			ans += fb.m;
+		}
+		
+		bw.write(ans+"");
+		bw.flush();
+		bw.close();
+	}
+	
+	public static void moveBall() {
+		HashMap<String, Queue<FireBall>> mBall = new HashMap<>();
+		
+		while(!balls.isEmpty()) {
+			FireBall fb = balls.poll();
+			if(fb.m==0)
 				continue;
 			
-			// 모두 짝수가 아니거나 모두 홀수가 아닌 경우
-			if(isEven && balls.get(idx).d%2!=0) 
-				isSameDir = false;
-			else if(!isEven && balls.get(idx).d%2==0)
-				isSameDir = false;
+			int nr = fb.r + dx[fb.d] * (fb.s%N);
+			int nc = fb.c + dy[fb.d] * (fb.s%N);
+			
+			if(nr > 0) nr %= N;
+            if(nc > 0) nc %= N;
+            if(nr < 0) nr = N - Math.abs(nr);
+            if(nc < 0) nc = N - Math.abs(nc);
+			
+            fb.r = nr;
+            fb.c = nc;
+            
+			Queue<FireBall> q = mBall.getOrDefault(nr+" "+nc, new LinkedList<>());
+			q.add(fb);
+			mBall.put(nr+" "+nc, q);
 		}
 		
-		m /= 5;
-		s /= sameBalls.size();
-		
-		
-		// 모두 짝수이거나 모두 홀수인 경우
-		if(isSameDir)
-			d = 0;
-		else
-			d = 1;
-		
-		
-		int nSameBalls = sameBalls.size();
-		
-		for(int i=nSameBalls-1; i>=0; i--) {
-			int idx = sameBalls.get(i);
-			balls.remove(idx);
-		}
-		
-		if(m<=0)
-			return ;
-		
-		for(int i=0; i<4; i++) {
-			Ball b = new Ball(x,y,m,d,s);
-			getNextPoint(b);
-			balls.add(b);
-			d += 2;
+		for(String str : mBall.keySet()) {
+			String[] s = str.split(" ");
+			int r = Integer.parseInt(s[0]);
+			int c = Integer.parseInt(s[1]);
+			
+			Queue<FireBall> q = mBall.get(str);
+			
+			if(q.size()==1) {
+				balls.add(q.poll());
+				continue;
+			}
+			
+			boolean isEven = true;
+			boolean isOdd = true;
+			
+			int totD = 0;
+			int totM = 0;
+			int totS = 0;
+			int cnt = q.size();
+						
+			while(!q.isEmpty()) {
+				FireBall fb = q.poll();
+				
+				totM += fb.m;
+				totS += fb.s;
+				
+				if(fb.d%2==0)
+					isOdd = false;
+				else
+					isEven = false;
+			}
+			
+			int nM = totM / 5;
+			int nS = totS / cnt;
+			
+			if(nM <= 0)
+				continue;
+			
+			if(isOdd || isEven) {
+				for(int i=0; i<7; i+=2) {
+					balls.add(new FireBall(r,c,nM, nS, i));
+				}
+			}else {
+				for(int i=1; i<8; i+=2) {
+					balls.add(new FireBall(r,c,nM, nS, i));
+				}
+			}
+			
 		}
 	}
 	
-	public static void getNextPoint(Ball b) {
-		int corS = b.s % n;
-		int nextX = b.x + n + dx[b.d] * corS;
-		int nextY = b.y + n + dy[b.d] * corS;
-		
-		nextX %= n;
-		nextY %= n;
-		
-		
-		b.nextX = nextX;
-		b.nextY = nextY;
+	public static boolean isInArea(int x, int y) {
+		return x>0 && x<=N && y>0 && y<=N;
 	}
 }
