@@ -18,16 +18,28 @@ public class boj2146 {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 		
+		N = Integer.parseInt(br.readLine());
+		
 		map = new int[N][N];
 		visited = new int[N][N];
 		edge = new boolean[N][N];
 		
+		
+		
 		for(int i=0; i<N; i++) {
-			String[] str = br.readLine().split(" ");
+			String s = br.readLine();
+			if(s.equals("")) {
+				i--;
+				continue;
+			}
+			String[] str = s.split(" ");
 			for(int j=0; j<N; j++) {
 				map[i][j] = Integer.parseInt(str[j]);
 			}
 		}
+		
+		findArea();
+		//printMap(map);
 		
 		bw.write(minN+"");
 		bw.flush();
@@ -43,11 +55,56 @@ public class boj2146 {
 				bfs(i,j, num++);
 			}
 		}
+		
+		for(int i=0; i<N; i++) {
+			for(int j=0; j<N; j++) {
+				if(edge[i][j])
+					findBridge(i,j,visited[i][j]);
+			}
+		}
+	}
+	
+	public static void findBridge(int x, int y, int num) {
+		Queue<int[]> q = new LinkedList<>();
+		q.add(new int[] {x,y,0});
+		
+		boolean[][] tmp = new boolean[N][N];
+		tmp[x][y]=true;
+		
+		while(!q.isEmpty()) {
+			int[] now = q.poll();
+			int nowX = now[0];
+			int nowY = now[1];
+			int cnt = now[2];
+			
+			for(int i=0; i<4; i++) {
+				int nextX = nowX + dx[i];
+				int nextY = nowY + dy[i];
+				
+				if(!isInArea(nextX, nextY))
+					continue;
+				
+				if(tmp[nextX][nextY])
+					continue;
+				
+				if(visited[nextX][nextY]==num)
+					continue;
+				
+				if(visited[nextX][nextY]!=0) {
+					tmp[nextX][nextY]=true;
+					minN = Math.min(cnt, minN);
+				}
+				
+				tmp[nextX][nextY]=true;
+				q.add(new int[] {nextX, nextY,cnt+1});
+			}
+		}
 	}
 	
 	public static void bfs(int x, int y, int num) {
 		Queue<int[]> q = new LinkedList<>();
 		q.add(new int[] {x,y});
+		visited[x][y]=num;
 		
 		while(!q.isEmpty()) {
 			int[] now = q.poll();
@@ -81,5 +138,15 @@ public class boj2146 {
 	
 	public static boolean isInArea(int x, int y) {
 		return x>=0 && x<N && y>=0 && y<N;
+	}
+	
+	public static void printMap(int[][] map) {
+		System.out.println("=========PRINT=========");
+		for(int i=0; i<N; i++) {
+			for(int j=0; j<N; j++) {
+				System.out.print(map[i][j]+" ");
+			}
+			System.out.println();
+		}
 	}
 }
