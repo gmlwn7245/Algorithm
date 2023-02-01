@@ -14,6 +14,7 @@ public class boj14891 {
    public static void main(String[] args) {
       Scanner sc = new Scanner(System.in);
       
+      
       wheel = new int[4][8];
       idx = new int[4][2];
       
