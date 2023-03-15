@@ -31,7 +31,6 @@ public class boj21609 {
 	public static int[] dy = {0,0,1,-1};
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 		
 		StringTokenizer st = new StringTokenizer(br.readLine());
 		N = Integer.parseInt(st.nextToken());
@@ -50,7 +49,6 @@ public class boj21609 {
 			bg = null;
 			visited = new boolean[N][N];
 			
-			
 			for(int i=0; i<N; i++) 
 				for(int j=0; j<N; j++) {
 					if(map[i][j]>0 && !visited[i][j])
@@ -64,17 +62,13 @@ public class boj21609 {
 				map[n[0]][n[1]] = -2;
 			
 			long size = bg.arr.size();
-			System.out.println("size=>"+size);
-			printMap();
 			sum += size * size;
 			setGravity();
 			rot();
 			setGravity();
 		}
 		
-		
-		
-		System.out.println("res ----> "+sum);
+		System.out.println(sum);
 	}
 	
 	public static void rot() {
@@ -141,7 +135,7 @@ public class boj21609 {
 				if(visited[nextX][nextY])
 					continue;
 				
-				if(val == -1 || val > 0 && val != num)
+				if(val < 0d || val > 0 && val != num)
 					continue;
 				
 				
@@ -157,9 +151,6 @@ public class boj21609 {
 				visited[nextX][nextY] = true;
 			}
 		}
-		//System.out.println(map[startX][startY]+" => "+arr.size());
-		
-		//System.out.println(startX+" "+startY+" End!");
 		
 		if(arr.size() < 2)
 			return ;
