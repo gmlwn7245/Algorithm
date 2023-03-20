@@ -1,149 +1,180 @@
 package BOJ_SS;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Scanner;
-
-class Fish{
-	public int x,y,dir;
-	public Fish(int x, int y, int dir) {
-		this.x = x;
-		this.y = y;
-		this.dir = dir;
-	}
-}
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.StringTokenizer;
 
 public class boj23290 {
-	private static int m,s;
-	private static int sharkX=-1, sharkY=-1;
-	private static int maxSum = 0, mx = -1, my = -1;
-	
-	private static int[] sdx = {};
-	
-	private static int[] dx = {0,0,-1,-1,-1,0,1,1,1};
-	private static int[] dy = {0,-1,-1,0,1,1,1,0,-1};
-	private static int[][] map;
-	private static int[][] smell;
-	private static int[][] smellCnt;
-	private static ArrayList<Fish> fishes = new ArrayList<>();
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
-		
-		m = sc.nextInt();
-		s = sc.nextInt();
-		map = new int[4][4];
-		
-		for(int i=0; i<m; i++) {
-			int fx = sc.nextInt()-1;
-			int fy = sc.nextInt()-1;
-			int fd = sc.nextInt();
-			
-			fishes.add(new Fish(fx, fy, fd));
-			map[fx][fy]++;
-		}
-		
-		sharkX = sc.nextInt()-1;
-		sharkY = sc.nextInt()-1;
-		
-		for(int i=0; i<s; i++) {
-			// 복제 먼저
-			ArrayList<Fish> copyFish = new ArrayList<>();
-		
-			for(Fish f : fishes) {
-				copyFish.add(new Fish(f.x,f.y,f.dir));
-			}
-			
-			// 물고기 이동
-			moveFish();
-			
-			maxSum = 0;
-			mx = sharkX;
-			my = sharkY;
-			
-			// 상어 이동
-			
+	static class Fish {
+		int x, y, dir;
+		public Fish(int x, int y, int dir) {
+			this.x = x;
+			this.y = y;
+			this.dir = dir;
 		}
 	}
+
+	public static int sharkX, sharkY, fishCnt=0, moveDic=555;
+	public static int[] dx = {0,0,-1,-1,-1,0,1,1,1};
+	public static int[] dy = {0,-1,-1,0,1,1,1,0,-1};
+	public static HashSet<Fish> now = new HashSet<>();
+	public static HashSet<Fish> copy = new HashSet<>();
+	public static HashSet<Fish>[][] fishMap = new HashSet[5][5];
+	public static ArrayList<String> sharkMove = new ArrayList<>();
 	
-	//dfs
-	public static void moveShark(int moveCnt, int fishCnt, int x, int y) {
-		// 상어는 연속 3칸 이동
-		// 상하좌우로 인접한 칸으로 이동할 수 있음
-		if(moveCnt == 3) {
-			if(fishCnt > maxSum) {
-				maxSum = fishCnt;
-				mx = x;
-				my = y;
+	public static HashMap<Integer, boolean[][]> fishSmell = new HashMap<>();
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		int M = Integer.parseInt(st.nextToken());
+		int S = Integer.parseInt(st.nextToken());
+		
+		for(int i=0; i<M; i++) {
+			st = new StringTokenizer(br.readLine());
+			int x = Integer.parseInt(st.nextToken()), y = Integer.parseInt(st.nextToken());
+			int dir = Integer.parseInt(st.nextToken());
+			
+			Fish fish = new Fish(x,y, dir);
+			
+			now.add(fish);
+		}
+		
+		st = new StringTokenizer(br.readLine());
+		sharkX = Integer.parseInt(st.nextToken());
+		sharkY = Integer.parseInt(st.nextToken());
+		
+		
+		for(int s=0; s<S; s++) {
+			/* Map 초기화 */
+			for(int i=1; i<=4; i++)
+				for(int j=1; j<=4; j++)
+					fishMap[i][j]= new HashSet<Fish>();
+			
+			/* 물고기 복사 */
+			for(Fish f : now)
+				copy.add(new Fish(f.x, f.y, f.dir));
+			
+			/* 물고기 이동 */
+			moveFish(s);
+			
+			/* 물고기 Map에 추가 */
+			for(Fish f: now)
+				fishMap[f.x][f.y].add(f);
+			
+			/* 상어 이동 */
+			moveShark(0, sharkX, sharkY, "", new ArrayList<>());
+			
+			/* 이동한 곳 물고기 제거 및 냄새 넣기*/
+			boolean[][] smells = new boolean[5][5];
+			for(String point : sharkMove) {
+				int x = point.charAt(0)-'0';
+				int y = point.charAt(2)-'0';
+				smells[x][y]=true;
+			
+				for(Fish f : fishMap[x][y]) {
+					now.remove(f);
+				}
+					
+				fishMap[x][y].clear();
+			}
+			
+			fishSmell.put(s, smells);
+			
+			
+			/* 두 턴 전 냄새 삭제 */
+			if(s > 2)
+				fishSmell.remove(s-2);
+			
+			/* 물고기 복제 */
+			now.addAll(copy);
+			copy.clear();
+		}
+		
+		System.out.println(now.size());
+		
+	}
+	
+	public static void moveShark(int cnt, int x, int y, String move, ArrayList<int[]> maps) {
+		if(cnt == 3) {
+			int fishCnt2 = 0;
+			for(int i=0; i<3; i++) {
+				int[] step = maps.get(i);
+				fishCnt2 += fishMap[step[0]][step[1]].size();
+			}
+			
+			if(fishCnt < fishCnt2 || (fishCnt == fishCnt2 && moveDic > Integer.parseInt(move))) {
+				sharkX = x; sharkY = y;
+				moveDic = Integer.parseInt(move);
+				sharkMove.clear();
+				for(int[] p : maps)
+					sharkMove.add(p[0]+" "+p[1]);
 			}
 			return ;
 		}
 		
-		for(int i=0; i<4; i++) {
-			
-		}
+		// 상좌하우
+		int[] dx = {0, -1, 0, 1, 0};
+		int[] dy = {0, 0, -1, 0, 1};
 		
-	}
-	
-	public static void moveFish() {
-		// 상어가 있는 칸, 물고기 냄새가 있는 칸, 격자의 범위를 벗어나는 칸 이동 불가
-		// 이동할 수 있는 칸이 없으면 이동X
-		
-		for(int i=0; i<fishes.size(); i++) {
-			Fish f = fishes.get(i);
+		for(int i=1; i<=4; i++) {
+			int nextX = x + dx[i], nextY = y + dy[i];
 			
-			// 물고기 방향 바꾸고 이동
-			int nx = f.x + dx[f.dir];
-			int ny = f.y + dy[f.dir];
-			int newDir = f.dir;
-			boolean canMove = true;
-			while(!isAbleToMove(nx, ny)) {
-				newDir = changeDir(f.dir);
-				
-				if(newDir == f.dir) {
-					canMove = false;
-					break;
-				}
-				
-				nx = f.x + dx[newDir];
-				ny = f.y + dy[newDir];
-			}
-			// 움직일 수 없는 경우
-			if(!canMove)
+			if(!isInArea(nextX, nextY))
 				continue;
 			
+			move += i;
+			maps.add(new int[] {nextX, nextY});
 			
-			// 움직일 경우
-			map[f.x][f.y]--;
-			map[nx][ny]++;
+			moveShark(cnt+1, nextX, nextY, move, maps);
 			
-			f.dir = newDir;
-			f.x = nx;
-			f.y = ny;
+			maps.remove(cnt);
+			move.substring(0, move.length()-1);
 		}
 	}
 	
-	
-	public static int changeDir(int dir) {
-		if(dir == 8)
-			return 1;
-		else
-			return dir+1;
+	public static void moveFish(int turn) {
+		for(Fish f : now) {
+			for(int i=0; i<8; i++) {
+				if(canMove(turn, f))
+					break;
+				f.dir = getDir(f.dir);
+			}
+		}
 	}
 	
-	public static boolean isAbleToMove(int x, int y) {
-		if(x==sharkX && y==sharkY)
+	public static boolean canMove(int turn, Fish f) {
+		int nowDir = f.dir;
+		int nextX = f.x + dx[nowDir], nextY = f.y + dy[nowDir];
+		
+		if(!isInArea(nextX, nextY))
 			return false;
 		
-		if(smell[x][y]!=0)
+		if(sharkX==nextX && sharkY == nextY)
 			return false;
 		
-		if(!isInArea(x,y))
+		if(turn > 1 && fishSmell.get(turn-1)[nextX][nextY])
 			return false;
+		
+		if(turn > 2 && fishSmell.get(turn-2)[nextX][nextY])
+			return false;
+		
+		f.x = nextX;
+		f.y = nextY;
 		
 		return true;
 	}
 	
+	public static int getDir(int dir) {
+		if(dir == 1)
+			return 8;
+		return dir-1;
+	}
 	
 	public static boolean isInArea(int x, int y) {
-		return x>=0 && x<4 && y>=0 && y<4;
+		return x>=1 && x<=4 && y>=1 && y<=4;
 	}
 }
