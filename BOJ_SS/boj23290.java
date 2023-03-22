@@ -18,7 +18,7 @@ public class boj23290 {
 		}
 	}
 
-	public static int sharkX, sharkY, fishCnt=0, moveDic=555;
+	public static int s,sharkX, sharkY, fishCnt=0, moveDic=555;
 	public static int[] dx = {0,0,-1,-1,-1,0,1,1,1};
 	public static int[] dy = {0,-1,-1,0,1,1,1,0,-1};
 	public static HashSet<Fish> now = new HashSet<>();
@@ -48,12 +48,7 @@ public class boj23290 {
 		sharkY = Integer.parseInt(st.nextToken());
 		
 		
-		for(int s=0; s<S; s++) {
-			/* Map 초기화 */
-			for(int i=1; i<=4; i++)
-				for(int j=1; j<=4; j++)
-					fishMap[i][j]= new HashSet<Fish>();
-			
+		for(s=0; s<S; s++) {
 			/* 물고기 복사 */
 			for(Fish f : now)
 				copy.add(new Fish(f.x, f.y, f.dir));
@@ -61,18 +56,26 @@ public class boj23290 {
 			/* 물고기 이동 */
 			moveFish(s);
 			
+			/* Map 초기화 */
+			for(int i=1; i<=4; i++)
+				for(int j=1; j<=4; j++)
+					fishMap[i][j]= new HashSet<Fish>();
+			
 			/* 물고기 Map에 추가 */
 			for(Fish f: now)
 				fishMap[f.x][f.y].add(f);
 			
+			
 			/* 상어 이동 */
-			moveShark(0, sharkX, sharkY, "", new ArrayList<>());
+			moveShark(0, sharkX, sharkY, new ArrayList<>(), new ArrayList<>());
 			
 			/* 이동한 곳 물고기 제거 및 냄새 넣기*/
 			boolean[][] smells = new boolean[5][5];
 			for(String point : sharkMove) {
 				int x = point.charAt(0)-'0';
 				int y = point.charAt(2)-'0';
+				if(fishMap[x][y].size()==0)
+					continue;
 				smells[x][y]=true;
 			
 				for(Fish f : fishMap[x][y]) {
@@ -92,31 +95,49 @@ public class boj23290 {
 			/* 물고기 복제 */
 			now.addAll(copy);
 			copy.clear();
+			
+			printMap();
+			System.out.println("SHARK => "+sharkX + " "+sharkY+" "+moveDic);
+			
+			
 		}
 		
 		System.out.println(now.size());
 		
 	}
 	
-	public static void moveShark(int cnt, int x, int y, String move, ArrayList<int[]> maps) {
+	public static void moveShark(int cnt, int x, int y, ArrayList<String> move, ArrayList<String> maps) {
 		if(cnt == 3) {
 			int fishCnt2 = 0;
+			HashSet<String> hs = new HashSet<>();
 			for(int i=0; i<3; i++) {
-				int[] step = maps.get(i);
-				fishCnt2 += fishMap[step[0]][step[1]].size();
+				String s = maps.get(i);
+				if(hs.contains(s))
+					continue;
+				hs.add(s);
+				int mx = s.charAt(0)-'0', my = s.charAt(2)-'0';
+				fishCnt2 += fishMap[mx][my].size();
 			}
 			
-			if(fishCnt < fishCnt2 || (fishCnt == fishCnt2 && moveDic > Integer.parseInt(move))) {
+			String st = "";
+			for(String s : move)
+				st+=s;
+			if(s == 2)
+				System.out.println(fishCnt2+" "+st);
+			
+			if(fishCnt < fishCnt2 || (fishCnt == fishCnt2 && moveDic > Integer.parseInt(st))) {
 				sharkX = x; sharkY = y;
-				moveDic = Integer.parseInt(move);
+				fishCnt = fishCnt2;
+				moveDic = Integer.parseInt(st);
 				sharkMove.clear();
-				for(int[] p : maps)
-					sharkMove.add(p[0]+" "+p[1]);
+				//System.out.println(fishCnt2 + " "+st);
+				for(String s : maps)
+					sharkMove.add(s);
 			}
 			return ;
 		}
 		
-		// 상좌하우
+		// 상1좌2하3우4
 		int[] dx = {0, -1, 0, 1, 0};
 		int[] dy = {0, 0, -1, 0, 1};
 		
@@ -126,13 +147,13 @@ public class boj23290 {
 			if(!isInArea(nextX, nextY))
 				continue;
 			
-			move += i;
-			maps.add(new int[] {nextX, nextY});
+			move.add(i+"");
+			maps.add(nextX +" "+ nextY);
 			
 			moveShark(cnt+1, nextX, nextY, move, maps);
 			
 			maps.remove(cnt);
-			move.substring(0, move.length()-1);
+			move.remove(cnt);
 		}
 	}
 	
@@ -176,5 +197,19 @@ public class boj23290 {
 	
 	public static boolean isInArea(int x, int y) {
 		return x>=1 && x<=4 && y>=1 && y<=4;
+	}
+	
+	public static void printMap() {
+		int[][] m = new int[5][5];
+		for(Fish f : now)
+			m[f.x][f.y]++;
+		
+		System.out.println("====MAP====");
+		for(int i=1; i<=4; i++) {
+			for(int j=1; j<=4; j++) {
+				System.out.print(m[i][j]+" ");
+			}
+			System.out.println();
+		}
 	}
 }
