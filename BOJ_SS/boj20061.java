@@ -28,7 +28,18 @@ public class boj20061 {
 			
 			setGreen(t,x,y);
 			setBlue(t,y,x);
+			
+			//System.out.println("TURN-----------------"+i);
+			
+			/*
+			 printMap("GREEN",green);
+			printMap("BLUE",blue); 
+			 
+			 * */
+
 		}
+		
+		
 		
 		int sum = cnt(blue)+cnt(green);
 		System.out.println(ans);
@@ -117,13 +128,14 @@ public class boj20061 {
 					break;
 				}
 			}
+		
 		if(cnt == 0)
 			return ;
 		
 		for(int i=5-cnt; i>=0; i--) {
 			for(int j=0; j<4; j++) {
 				map[i+cnt][j]=map[i][j];
-				map[i+cnt][j]=false;
+				map[i][j]=false;
 			}
 		}
 	}
