@@ -10,47 +10,24 @@ import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class boj15486 {
-	static class Node {
-		int T, P;
-		public Node(int T, int P) {
-			this.T = T;
-			this.P = P;
-		}
-	}
-	
-	private static int N, maxP=0;
-	private static Node[] node;
-	private static boolean[] isPossible;
+	public static int[] dp;
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-		
-		N = Integer.parseInt(br.readLine());
-		node = new Node[N+1];
-		isPossible = new boolean[N+1];
+		int N = Integer.parseInt(br.readLine());
+		dp = new int[N+1];
 		
 		for(int i=1; i<=N; i++) {
 			StringTokenizer st = new StringTokenizer(br.readLine());
+			int d = Integer.parseInt(st.nextToken());
+			int c = Integer.parseInt(st.nextToken());
 			
-			int t = Integer.parseInt(st.nextToken());
-			int p = Integer.parseInt(st.nextToken());
+			dp[i]=Math.max(dp[i], dp[i-1]);
+			if(i+d-1 > N)
+				continue;
 			
-			node[i] = new Node(t,p);
-			if(canDoSchedule(i))
-				isPossible[i] = true;
+			dp[i+d-1] = Math.max(dp[i+d-1], dp[i-1]+c);
 		}
 		
-		int firstend = node[1].T;
-		
-		for(int i=1; i<=firstend; i++) {
-		}
-		
-		bw.write(maxP+"");
-		bw.flush();
-		bw.close();
-	}
-	
-	public static boolean canDoSchedule(int n) {
-		return node[n].T + n - 1 <= N;
+		System.out.println(dp[N]);
 	}
 }
