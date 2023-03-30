@@ -7,17 +7,40 @@ import java.util.PriorityQueue;
 
 
 public class test {
+	public static int[][] map = new int[5][7];
 	public static void main(String[] args) {
-		ArrayList<Integer> arr = new ArrayList<>();
-		arr.add(1);
-		arr.add(2);
-		arr.add(3);
+		int i = 3, N=5;
+		int x = N-1, y = i;
+		map[N-1][i]=1;
 		
-		ArrayList<Integer> arr2 = new ArrayList<>();
-		arr2.addAll(arr);
-		arr2.add(4);
+		int D = 3;
 		
-		for(int i : arr2)
-			System.out.println(i+" ");
+		for(int j=1; j<=D; j++) {
+			int d = j*2+1;
+			y=i-j; x=N-1;
+			
+			while(d-- > 0) {
+//				System.out.println(x+" "+y);
+				map[x][y]=j+1;
+				
+				y++;
+				int res = j-Math.abs(y-3);
+				x = 4-res;
+				
+				
+			}
+		}
+		
+		//printMap();
+	}
+	
+	public static void printMap() {
+		System.out.println("+++PRINT+++");
+		for(int i=0; i<5; i++) {
+			for(int j=0; j<7; j++) {
+				System.out.print(map[i][j]+" ");
+			}
+			System.out.println();
+		}
 	}
 }
