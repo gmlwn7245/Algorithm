@@ -4,30 +4,32 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.StringTokenizer;
 
 
 // LinkedList로 다시 풀기
 public class santa_gift_factory_22b {
 	public static class Box {
-		int id, w;
-		public Box(int id, int w) {
+		int id, w, belt;
+		Box prev=this;
+		Box next=this;
+		public Box(int id, int w, int belt) {
 			this.id = id;
 			this.w = w;
+			this.belt = belt;
 		}
 	}
 	public static int q, n, m, cnt;
 	public static boolean[] beltBroken;
-	public static HashMap<Integer, Integer> id_hm = new HashMap<Integer, Integer>();
-	public static Queue<Box>[] belt;
+	public static HashMap<Integer, Box> id_hm = new HashMap<Integer, Box>();
+	public static Box[] head, tail;
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		q = Integer.parseInt(br.readLine());
 		
 		establish(br.readLine());
 		StringBuilder sb = new StringBuilder();
+		System.out.println();
 		//printMap("first");
 		
 		for(int i=1; i<q; i++) {
@@ -35,6 +37,7 @@ public class santa_gift_factory_22b {
 			StringTokenizer st = new StringTokenizer(s);
 			int num = Integer.parseInt(st.nextToken());
 			int idx = Integer.parseInt(st.nextToken());
+			
 			
 			if(num == 200) {	// w 이하 하차
 				sb.append(offload(idx));
@@ -53,133 +56,161 @@ public class santa_gift_factory_22b {
 		System.out.println(sb.toString());
 	}
 	
-	public static void printMap(String s) {
-		System.out.println("=====BELT "+s);
-		for(Queue<Box> q : belt) {
-			Queue<Box> tmp = new LinkedList<>();
-			while(!q.isEmpty()) {
-				Box b = q.poll();
-				System.out.print("("+b.id+","+b.w+")");
-				tmp.add(b);
-			}
-			q.addAll(tmp);
-			System.out.println();
-		}
-			
-	}
-	
-	public static int breakdown(int id) {
-		if(beltBroken[id])
+	public static int breakdown(int idx) {
+		if(beltBroken[idx])
 			return -1;
 		
-		beltBroken[id]=true;
+		beltBroken[idx]=true;
 		
-		int findBelt = -1;
-		for(int i=id+1; i<m; i++) {
-			if(!beltBroken[i]) {
-				findBelt = i;
+		int nextBelt = idx+1;
+		for(int i=1; i<m; i++) {
+			if(nextBelt==m)
+				nextBelt = 0;
+			
+			if(!beltBroken[nextBelt])
 				break;
-			}
-		}
-		if(findBelt==-1) {
-			for(int i=0; i<id; i++) {
-				if(!beltBroken[i]) {
-					findBelt = i;
-					break;
-				}
-			}
+			nextBelt++;
 		}
 		
-		while(!belt[id].isEmpty()) {
-			Box b = belt[id].poll();
-			id_hm.put(b.id, findBelt);
-			belt[findBelt].add(b);
+		while(head[idx]!=null) {
+			Box b = head[idx];
+			removeBox(b);
+			
+			b.belt = nextBelt;
+			pushBox(b);
 		}
 		
-		return id+1;
+		return idx+1;
 	}
 	
 	public static int check(int id) {
 		if(!id_hm.containsKey(id))
 			return -1;
 		
-		int idx = id_hm.get(id);
-		Queue<Box> tmp = new LinkedList<>();
-
-		
-		while(!belt[idx].isEmpty()) {
-			if(belt[idx].peek().id == id)
-				break;
-			Box b = belt[idx].poll();
-			tmp.add(b);
+		Box b = id_hm.get(id);
+		int belt = b.belt;
+		if(b!=head[belt]) {
+			head[belt].prev = tail[belt];
+			tail[belt].next = head[belt];
+			
+			head[belt] = b;
+			tail[belt] = b.prev;
+			
+			head[belt].prev = head[belt];
+			tail[belt].next = tail[belt];
 		}
 		
-		belt[idx].addAll(tmp);
-		
-		return idx+1;
+		return b.belt+1;
 	}
 	
 	public static int remove(int id) {
 		if(!id_hm.containsKey(id))
 			return -1;
 		
-		int idx = id_hm.get(id);
-		Queue<Box> tmp = new LinkedList<>();
-		while(!belt[idx].isEmpty()) {
-			Box b = belt[idx].poll();
-			if(b.id != id)
-				tmp.add(b);
-			//System.out.println(b.id);
-		}
-		id_hm.remove(id);
-		belt[idx].addAll(tmp);
+		Box b = id_hm.get(id);
+		removeBox(b);
+		
 		return id;
 	}
 	
-	public static int offload(int weight) {
-		int totW = 0;
-		for(int i=0; i<m; i++) {
-			if(belt[i].isEmpty())
-				continue;
-			if(belt[i].peek().w <= weight) {
-				Box b = belt[i].poll();
-				totW += b.w;
-				id_hm.remove(b.id);
-			}else {
-				Box b = belt[i].poll();
-				belt[i].add(b);
+	public static void removeBox(Box b) {
+		int idx = id_hm.get(b.id).belt;
+		
+		if(head[idx]==tail[idx]) {
+			head[idx]=tail[idx]=null;
+		}else if(head[idx]==b) {
+			head[idx]=b.next;
+			b.next.prev = b.next;
+		}else if(tail[idx]==b) {
+			tail[idx]=b.prev;
+			b.prev.next = b.prev;
+		}else {
+			b.next.prev = b.prev;
+			b.prev.next = b.next;
+		}
+		
+		b.next = b;
+		b.prev = b;
+		
+		id_hm.remove(b.id);
+	}
+	
+	public static void pushBox(Box b) {
+		int idx = b.belt;
+		id_hm.put(b.id, b);
+		
+		if(head[idx]==null) {
+			head[idx]=tail[idx]=b;
+		}else {
+			tail[idx].next = b;
+			b.prev = tail[idx];
+			tail[idx] = b;
+		}
+	}
+	
+	public static long offload(int weight) {
+		long sum = 0;
+		
+		for(int i = 0; i<m; i++) {
+			if(!beltBroken[i] && head[i]!=null) {
+				Box b = head[i];
+				removeBox(b);
+				
+				if(b.w <= weight) {
+					sum += b.w;
+				}else {
+					pushBox(b);
+				}
 			}
 		}
-		return totW;
+
+		return sum;
 	}
+
 	
 	public static void establish(String str) {
 		StringTokenizer st = new StringTokenizer(str);
 		Integer.parseInt(st.nextToken());
 		n = Integer.parseInt(st.nextToken());
 		m = Integer.parseInt(st.nextToken());
-		cnt = n/m;
+		int cnt = n/m;
 		
-		belt = new Queue[m];
+		head = new Box[m]; tail = new Box[m];
 		beltBroken = new boolean[m];
 		
-		int[][] thing = new int[n][2];
+		int[] id = new int[n];
+		int[] w = new int[n];
 		
-		for(int j=0; j<2; j++) 
-			for(int i=0; i<n; i++) 
-				thing[i][j]=Integer.parseInt(st.nextToken());
+		for(int i=0; i<n; i++) 
+			id[i]=Integer.parseInt(st.nextToken());
+		for(int i=0; i<n; i++) 
+			w[i]=Integer.parseInt(st.nextToken());
 		
-		// id - w 순
+		for(int i=0; i<n; i++) {
+			int belt = i/cnt;
+			
+			Box b = new Box(id[i], w[i], belt);
+			id_hm.put(b.id, b);
+			pushBox(b);
+		}
 		
-		int j = 0;
-		for(int i=0; i<m; i++) {
-			belt[i] = new LinkedList<Box>();
-			for(int k=0;k<cnt; k++) {
-				Box b = new Box(thing[j][0], thing[j][1]);
-				belt[i].add(b);
-				id_hm.put(b.id, i);
-				j++;
+	}
+	
+	public static void printMap(String s) {
+		System.out.println("=====BELT "+s);
+		for(Box b : head) {
+			if(b == null) {
+				System.out.println("NULL");
+				continue;
 			}
+				
+			
+			while(b.next != b) {
+				System.out.print("("+b.id+","+b.w+") ");
+				b = b.next;
+			}
+			System.out.print("("+b.id+","+b.w+") ");
+			System.out.println();
 		}
 	}
 }
