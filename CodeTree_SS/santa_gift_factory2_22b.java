@@ -39,6 +39,11 @@ public class santa_gift_factory2_22b {
 			
 			int order = Integer.parseInt(st.nextToken());
 			int m_src, m_dst;
+			
+			System.out.println(i+" "+str);
+			if(i==22431)
+				System.out.print("");;
+			
 			switch(order) {
 			case 100:	// 초기 설정
 				n = Integer.parseInt(st.nextToken());
@@ -90,10 +95,15 @@ public class santa_gift_factory2_22b {
 				
 				break;
 			}
-			printMap(str);
-			if(i != q-1)
+			
+			
+			
+			//printMap(str);
+			if(i!=0 && i != q-1)
 				sb.append("\n");
 		}
+		
+		//System.out.println(changeHead(1,51));
 		
 		System.out.println(sb.toString());
 	}
@@ -111,6 +121,7 @@ public class santa_gift_factory2_22b {
 	
 	public static int getBoxInfo(int p_num) {
 		Box bb = box.get(p_num);
+		
 		int a = -1, b = -1;
 		if(bb.prev != bb)
 			a = bb.prev.id;
@@ -122,20 +133,20 @@ public class santa_gift_factory2_22b {
 	}
 	
 	public static int divided(int src, int dst) {
+		if(boxCnt.getOrDefault(src, 0)<=1)
+			return boxCnt.getOrDefault(dst, 0);
+		
 		int cnt = boxCnt.getOrDefault(src, 0)/2;
-		System.out.println(cnt);
+		int res = cnt;
 		Box b = head[src];
 		b.belt = dst;
-		while(cnt-- > 1) {
+		while(res-- > 1) {
 			b = b.next;
 			b.belt = dst;
 		}
-		System.out.println(boxCnt.getOrDefault(src, 0)+" "+ boxCnt.getOrDefault(dst, 0));
 		
-		boxCnt.put(src, (boxCnt.get(src)-cnt));
-		boxCnt.put(dst, (boxCnt.get(dst)+cnt));
-		
-		System.out.println(boxCnt.get(src)+" "+ boxCnt.get(dst));
+		boxCnt.put(src, boxCnt.getOrDefault(src,0)-cnt);
+		boxCnt.put(dst, boxCnt.getOrDefault(dst,0)+cnt);
 		
 		Box h = b.next;
 		
@@ -168,26 +179,32 @@ public class santa_gift_factory2_22b {
 			remove(b1);
 			push(b1, dst);
 		}else {
+			//System.out.println("======BF "+boxCnt.getOrDefault(src,0)+" "+boxCnt.getOrDefault(dst, 0));
 			remove(b1);
 			remove(b2);
 			
-			head[src].prev = b2;
-			b2.next = head[src];
-			head[src] = b2;
-			b2.belt = src;
-			
-			head[dst].prev = b1;
-			b1.next = head[dst];
-			head[dst] = b2;
-			b1.belt = dst;
+			pushHead(b1, dst);
+			pushHead(b2, dst);
 		}
 		
 		return boxCnt.getOrDefault(dst, 0);
 	}
 	
+	public static void pushHead(Box b, int belt_num) {
+		if(head[belt_num]==null) {
+			head[belt_num] = tail[belt_num]=b;
+		}else {
+			head[belt_num].prev = b;
+			b.next = head[belt_num];
+			b.prev = b;
+		}
+		
+		boxCnt.put(belt_num, boxCnt.getOrDefault(belt_num,0)+1);
+	}
+	
 	public static int move(int src, int dst) {
 		if(boxCnt.getOrDefault(src,0)==0)
-			return 0;
+			return boxCnt.getOrDefault(dst,0);
 		
 		Box b = head[src];
 		while(b.next != b) {
@@ -196,18 +213,21 @@ public class santa_gift_factory2_22b {
 		}
 		b.belt = dst;
 		
-		if(head[src]!=null) {
-			int cnt = boxCnt.getOrDefault(src,0);
+		if(head[dst]!=null) {
 			head[dst].prev = tail[src];
 			tail[src].next = head[dst];
 			head[dst] = head[src];
-			
-			head[src]=tail[src]=null;
-			boxCnt.put(src, 0);
-			boxCnt.put(dst, boxCnt.getOrDefault(dst,0)+cnt);
+		}else {
+			head[dst] = head[src];
+			tail[dst] = tail[src];
 		}
 		
-		return boxCnt.get(dst);
+		int cnt = boxCnt.getOrDefault(src,0);
+		head[src]=tail[src]=null;
+		boxCnt.put(src, 0);
+		boxCnt.put(dst, boxCnt.getOrDefault(dst,0)+cnt);
+		
+		return boxCnt.getOrDefault(dst,0);
 	}
 	
 	public static void remove(Box b) {
@@ -217,27 +237,31 @@ public class santa_gift_factory2_22b {
 			head[b_num]=tail[b_num]=null;
 		}else if(head[b_num]==b) {
 			head[b_num] = b.next;
-			b.next.prev = b.next;
+			head[b_num].prev = head[b_num];
 		}else if(tail[b_num]==b) {
 			tail[b_num] = b.prev;
-			b.prev.next = b.prev;
+			tail[b_num].next = tail[b_num];
 		}else {
 			b.prev.next = b.next;
 			b.next.prev = b.prev;
 		}
 		
-		boxCnt.put(b.belt, boxCnt.get(b.belt)-1);
+		boxCnt.put(b_num, boxCnt.get(b_num)-1);
 		b.prev = b; b.next =b;
 	}
 	
 	public static void push(Box b, int belt_num) {
+		
 		if(head[belt_num]==null) {
 			head[belt_num] = tail[belt_num]= b;
+			b.prev = b.next = b;
 		}else {
 			tail[belt_num].next = b;
-			b.prev = tail[belt_num] = b;
+			b.prev = tail[belt_num];
+			b.next = b;
 			tail[belt_num] = b;
 		}
+		
 		b.belt = belt_num;
 		boxCnt.put(belt_num, boxCnt.getOrDefault(belt_num, 0)+1);
 	}
