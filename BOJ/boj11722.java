@@ -21,7 +21,7 @@ public class boj11722 {
 		int ans = 1; dp[0]=1;
 		for(int i=1; i<N; i++) {
 			int now = score[i];
-			int max = 0, maxN = score[i]; dp[i]=1; 
+			int max = 0; dp[i]=1; 
 			for(int j=i-1; j>=0; j--) {
 				int prev = score[j];
 				if(prev > now) {
