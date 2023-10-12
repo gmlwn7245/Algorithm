@@ -57,7 +57,7 @@ public class tower_23a {
 		
 		// 레이저 공격 성공시
 		if(laser()) {
-			System.out.println("LASER");
+			//System.out.println("LASER");
 			
 			// 역추적
 			Queue<Top> q = new LinkedList<>();
@@ -78,11 +78,11 @@ public class tower_23a {
 			
 		}else {
 			
-			System.out.println("PORT");
+			//System.out.println("PORT");
 			int[] dx = {0,1,0,-1,1,1,-1,-1};
 			int[] dy = {1,0,-1,0,-1,1,-1,1};
 			
-			for(int i=0; i<7; i++) {
+			for(int i=0; i<8; i++) {
 				int nx = (defender.x + dx[i]+N)%N;
 				int ny = (defender.y + dy[i]+M)%M;
 				
@@ -192,11 +192,11 @@ public class tower_23a {
     	for(int k=1; k<=K; k++) {
     		setAttacker(k);
     		
-    		System.out.println("Attacker : "+attacker.x+" "+attacker.y+" "+aLevel[attacker.x][attacker.y]);
-    		System.out.println("Defender : "+defender.x+" "+defender.y+" "+aLevel[defender.x][defender.y]);
+    		//System.out.println("Attacker : "+attacker.x+" "+attacker.y+" "+aLevel[attacker.x][attacker.y]);
+    		//System.out.println("Defender : "+defender.x+" "+defender.y+" "+aLevel[defender.x][defender.y]);
     		
     		if(attacker.x == defender.x && attacker.y == defender.y) {
-    			aLevel[attacker.x][attacker.y]++;
+    			//aLevel[attacker.x][attacker.y]++;
     			break;
     		}
     		
@@ -207,7 +207,7 @@ public class tower_23a {
     		doAttack();
     		removeTop();
     		remindTop();
-    		printMap(k);
+    		// printMap(k);
     	}
     	
     	Collections.sort(tops);
